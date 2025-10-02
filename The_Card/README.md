@@ -104,15 +104,16 @@ After accessing the first IP:port address, I found myself on a CTI platform. I c
 
 I went through each of the five campaigns individually, clicking on them to view their associated tools and malware. After counting all unique tools and malware across all campaigns, I arrived at the total.
 
-![Campaign 1 tools and malware](screenshots/q6_campaign1.png)
+<details>
+<summary>Click to view all campaign screenshots</summary>
 
-![Campaign 2 tools and malware](screenshots/q6_campaign2.png)
+![Campaign 1](screenshots/q6_campaign1.png)
+![Campaign 2](screenshots/q6_campaign2.png)
+![Campaign 3](screenshots/q6_campaign3.png)
+![Campaign 4](screenshots/q6_campaign4.png)
+![Campaign 5](screenshots/q6_campaign5.png)
 
-![Campaign 3 tools and malware](screenshots/q6_campaign3.png)
-
-![Campaign 4 tools and malware](screenshots/q6_campaign4.png)
-
-![Campaign 5 tools and malware](screenshots/q6_campaign5.png)
+</details>
 
 **Flag:** `9`
 
