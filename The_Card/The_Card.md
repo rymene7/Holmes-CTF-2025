@@ -20,6 +20,26 @@ Holmes receives a breadcrumb from Dr. Nicole Vale - fragments from a string of c
 
 ---
 
+## Table of Contents
+
+- [Walkthrough](#walkthrough)
+  - [Question 1: First User-Agent Identification](#question-1-first-user-agent-identification)
+  - [Question 2: Web Shell Filename](#question-2-web-shell-filename)
+  - [Question 3: Exfiltrated Database Name](#question-3-exfiltrated-database-name)
+  - [Question 4: Recurring Cryptic String](#question-4-recurring-cryptic-string)
+  - [Question 5: Campaign Count](#question-5-campaign-count)
+  - [Question 6: Total Tools and Malware](#question-6-total-tools-and-malware)
+  - [Question 7: Malware SHA-256 Hash](#question-7-malware-sha-256-hash)
+  - [Question 8: C2 Server IP Address](#question-8-c2-server-ip-address)
+  - [Question 9: Persistence Mechanism Path](#question-9-persistence-mechanism-path)
+  - [Question 10: Open Ports Count](#question-10-open-ports-count)
+  - [Question 11: Organization Name](#question-11-organization-name)
+  - [Question 12: Cryptic Banner Message](#question-12-cryptic-banner-message)
+- [Final Thoughts](#final-thoughts)
+- [Answer Summary](#answer-summary)
+
+---
+
 ## Walkthrough
 
 ### Question 1: First User-Agent Identification
