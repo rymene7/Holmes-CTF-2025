@@ -19,6 +19,32 @@ LeStrade passes a disk image artifacts to Watson. It's one of the identified bre
   - `2025-08-25T20_20_59_5246365_SkipLog.csv`
   - `C\` directory (disk image artifacts)
 
+---
+
+## Table of Contents
+
+- [Tools Used](#tools-used)
+- [Walkthrough](#walkthrough)
+  - [Investigation Strategy](#investigation-strategy)
+  - [Question 1: First Command Executed](#question-1-first-command-executed)
+  - [Question 2: Parent Process Path](#question-2-parent-process-path)
+  - [Question 3: Remote Execution Tool](#question-3-remote-execution-tool)
+  - [Question 4: Attacker's IP Address](#question-4-attackers-ip-address)
+  - [Question 5: First Persistence Mechanism](#question-5-first-persistence-mechanism)
+  - [Question 6: Persistence Script Path](#question-6-persistence-script-path)
+  - [Question 7: Created Local Account](#question-7-created-local-account)
+  - [Question 8: Exfiltration Domain](#question-8-exfiltration-domain)
+  - [Question 9: Generated Password](#question-9-generated-password)
+  - [Question 10: Pivot Target IP](#question-10-pivot-target-ip)
+  - [Question 11: Forwarded Port](#question-11-forwarded-port)
+  - [Question 12: Registry Path for Port Proxy](#question-12-registry-path-for-port-proxy)
+  - [Question 13: MITRE ATT&CK Technique](#question-13-mitre-attck-technique)
+  - [Question 14: Audit Configuration Command](#question-14-audit-configuration-command)
+- [Final Thoughts](#final-thoughts)
+- [Answer Summary](#answer-summary)
+
+---
+
 ## Tools Used
 
 - Windows Event Viewer (Windows 10 OS)
