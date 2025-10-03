@@ -22,8 +22,8 @@ LeStrade passes a disk image artifacts to Watson. It's one of the identified bre
 ## Tools Used
 
 - Windows Event Viewer (Windows 10 OS)
-- Registry Explorer (Eric Zimmerman tool)
-- MITRE ATT&CK Framework
+- Registry Explorer (Eric Zimmerman tool) https://ericzimmerman.github.io/#!index.md
+- MITRE ATT&CK Framework https://attack.mitre.org/
 
 ---
 
@@ -95,6 +95,17 @@ Looking at the events right before the `systeminfo` execution, I found the paren
   </EventData>
 </Event>
 ```
+
+The parent process is `WmiPrvSE.exe` (WMI Provider Host), which is a legitimate Windows process responsible for executing WMI queries and operations. However, seeing it spawn command shells (`cmd.exe`) is a strong indicator of **WMI-based remote code execution**.
+
+**Why this matters:**
+- WMI is a powerful Windows management framework that allows remote administration
+- Attackers abuse WMI for "living off the land" techniques because:
+  - It's a trusted Windows process (bypasses basic security controls)
+  - Provides legitimate remote execution capabilities
+  - Often less monitored than other remote access methods
+- The command pattern (`cmd.exe /Q /c` with output redirection to `ADMIN$`) is characteristic of tools like `wmiexec.py` from the Impacket suite
+- This connects directly to Question 3's answer
 
 **Flag:** `C:\Windows\System32\wbem\WmiPrvSE.exe`
 
