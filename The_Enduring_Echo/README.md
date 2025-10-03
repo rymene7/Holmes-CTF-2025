@@ -452,7 +452,6 @@ Key takeaways:
 
 ## Answer Summary
 
-| Question | Answer |
 |----------|--------|
 | F01 | `systeminfo` |
 | F02 | `C:\Windows\System32\wbem\WmiPrvSE.exe` |
