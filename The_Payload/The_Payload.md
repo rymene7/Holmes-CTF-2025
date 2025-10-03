@@ -199,7 +199,7 @@ This calls through offset `0x68` in the COM object's vtable, which is the first 
 
 **Solution:**
 
-I located the key generation algorithm in the disassembly around address `140001dc1`. The algorithm uses SIMD instructions (AVX-512) for performance:
+I located the key generation algorithm in the disassembly around address `140001dc1`:
 
 Key operations identified:
 ```assembly
@@ -429,7 +429,6 @@ At the end of the challenge, there was a cryptic dialogue:
 - Classic worm propagation patterns
 
 ### Custom Encryption Algorithms
-- SIMD-optimized key generation (AVX-512 instructions)
 - Simple but effective XOR encryption
 - Pattern: `key[i] = ((i * mult) + add) & 0xFF`
 
