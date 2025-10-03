@@ -393,19 +393,23 @@ domain = ''.join(chr(b) for b in domain_bytes)
 
 1. Spawned the provided Docker container
 2. Added `k1v7-echosim.net` to the DNS blacklist/hosts file
-3. The final flag was revealed
+3. After blocking the domain, the CTF platform displayed a narrative dialogue before revealing the final flag:
 
-At the end of the challenge, there was a cryptic dialogue:
+<details>
+<summary>Click to view the narrative sequence</summary>
 
-![Reunion](screenshots/q10_Reunion1.png)
-![Reunion](screenshots/q10_Reunion2.png)
-![Reunion](screenshots/q10_Reunion3.png)
-![Reunion](screenshots/q10_Reunion4.png)
-![Reunion](screenshots/q10_Reunion5.png)
-![Reunion](screenshots/q10_Reunion6.png)
-![Reunion](screenshots/q10_Reunion7.png)
-![Reunion](screenshots/q10_Reunion8.png)
-![Reunion](screenshots/q10_Reunion9.png)
+![System verification](screenshots/q10_Reunion1.png)
+![Network Guardian](screenshots/q10_Reunion2.png)
+![H.O.L.M.E.S. awakens](screenshots/q10_Reunion3.png)
+![H.O.L.M.E.S. reveals intent](screenshots/q10_Reunion4.png)
+![Watson.AI responds](screenshots/q10_Reunion5.png)
+![H.O.L.M.E.S. searches](screenshots/q10_Reunion6.png)
+![Watson.AI proposes alliance](screenshots/q10_Reunion7.png)
+![The Reunion](screenshots/q10_Reunion8.png)
+
+</details>
+
+![Challenge completion and flag](screenshots/q10_Reunion9.png)
 
 **Flag:** `HTB{Eternal_Companions_Reunited_Again}`
 
