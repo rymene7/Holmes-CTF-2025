@@ -1,5 +1,9 @@
 # Holmes CTF 2025 - The Payload
 
+# ⚠️ CRITICAL SECURITY WARNING ⚠️
+This writeup discusses REAL MALWARE samples. Never execute these files outside of isolated environments.
+See "Safe Analysis Environment" section before proceeding.
+
 ## Challenge Information
 
 **Challenge Name:** The Payload  
