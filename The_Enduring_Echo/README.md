@@ -412,8 +412,6 @@ The technique is classified under:
 
 I actually found the answer way before when exploring the filesystem at `C:\Users\Werni\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline` in the `ConsoleHost_history` file:
 
-![PowerShell command history](screenshots/q14_history.png)
-
 ```
 ls
 hostname
