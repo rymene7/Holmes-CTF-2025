@@ -1,9 +1,5 @@
 # Holmes CTF 2025 - The Payload
 
-# ⚠️ CRITICAL SECURITY WARNING ⚠️
-This writeup discusses REAL MALWARE samples. Never execute these files outside of isolated environments.
-See "Safe Analysis Environment" section before proceeding.
-
 ## Challenge Information
 
 **Challenge Name:** The Payload  
@@ -21,14 +17,36 @@ With the malware extracted, Holmes inspects its logic. The strain spreads silent
   - `AetherDesk-v74-77.exe`
   - `AetherDesk-v74-77.pdb`
 
-**⚠️ CRITICAL WARNING:**
+## ⚠️ CRITICAL SECURITY WARNING ⚠️
 
 The downloaded artifacts should be considered **real malware**. This software has been intentionally included for educational purposes and is **NOT** intended to be executed or used otherwise. Always handle such files in isolated, controlled, and secure environments.
 
 **Recommended precautions:**
-1. Run the sample in a controlled environment (e.g., HTB Pwnbox or isolated VM)
+1. Run the sample in a controlled environment (e.g., HTB Pwnbox or isolated VM - see [Setting Up a Safe Analysis Environment](#setting-up-a-safe-analysis-environment) section for more guidance)
 2. Only analyze the software in this controlled environment
 3. **EXERCISE EXTREME CAUTION**
+
+---
+
+## Table of Contents
+
+- [Setting Up a Safe Analysis Environment](#setting-up-a-safe-analysis-environment)
+- [Tools Used](#tools-used)
+- [Walkthrough](#walkthrough)
+  - [Question 1: COM Library DLL](#question-1-com-library-dll)
+  - [Question 2: GUID for Object Instantiation](#question-2-guid-for-object-instantiation)
+  - [Question 3: .NET Framework Feature](#question-3-net-framework-feature)
+  - [Question 4: First Managed Code Call](#question-4-first-managed-code-call)
+  - [Question 5: Key Generation Constants](#question-5-key-generation-constants)
+  - [Question 6: Decryption Logic Call](#question-6-decryption-logic-call)
+  - [Question 7: Killswitch Domain Resolution API](#question-7-killswitch-domain-resolution-api)
+  - [Question 8: Network Share Enumeration API](#question-8-network-share-enumeration-api)
+  - [Question 9: Payload Execution Opcode](#question-9-payload-execution-opcode)
+  - [Question 10: Killswitch Domain and Final Flag](#question-10-killswitch-domain-and-final-flag)
+- [Key Techniques Learned](#key-techniques-learned)
+- [Complete Decryption Script](#complete-decryption-script)
+- [Final Thoughts](#final-thoughts)
+- [Answer Summary](#answer-summary)
 
 ---
 
