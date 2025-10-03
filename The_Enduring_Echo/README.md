@@ -452,7 +452,6 @@ Key takeaways:
 
 ## Answer Summary
 
-|----------|--------|
 | F01 | `systeminfo` |
 | F02 | `C:\Windows\System32\wbem\WmiPrvSE.exe` |
 | F03 | `wmiexec.py` |
