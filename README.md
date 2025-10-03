@@ -5,3 +5,5 @@ My writeups for HackTheBox's first all-blue CTF.
 ## Challenges
 
 1. [The Card](./The_Card/) - Easy
+2. [The Enduring Echo](./The_Enduring_Echo/) - Easy
+3. [The Payload](./The_Payload/) - Hard
