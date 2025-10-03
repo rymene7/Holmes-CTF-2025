@@ -29,6 +29,24 @@ LeStrade passes a disk image artifacts to Watson. It's one of the identified bre
 
 ## Walkthrough
 
+### Investigation Strategy
+
+For this challenge, I primarily focused on Windows Security event logs (`Security.evtx`) because:
+
+**Why Security Logs?**
+- **Process Creation Auditing (Event ID 4688)**: Security logs contain the most detailed command-line execution data when process auditing is enabled. This is critical for tracking attacker commands.
+- **Authentication Events (Event ID 4624/4625)**: Only Security logs capture logon attempts with source IP addresses, essential for identifying the attacker's origin.
+- **Account Management (Event ID 4720)**: User creation and modification events are exclusively logged in Security logs.
+- **Privilege Escalation Tracking**: Security logs document when processes run with elevated privileges or different user contexts.
+
+**Alternative Logs Considered:**
+- **System logs**: Useful for service starts/stops but lack command-line details
+- **Application logs**: Application-specific, less relevant for system-level attacks
+- **PowerShell logs**: Valuable for script analysis but not all commands were PowerShell-based
+- **Sysmon logs**: Would be ideal but weren't present in this artifact
+
+The Security log became our primary evidence source because the administrator had enabled command-line logging (discovered in Q14), making it a goldmine for tracking the attack chain.
+
 ### Question 1: First Command Executed
 
 **Task:** What was the first (non cd) command executed by the attacker on the host?
@@ -58,6 +76,15 @@ I navigated to the `.evtx` files in the C drive, specifically to `Security.evtx`
   </EventData>
 </Event>
 ```
+
+**Why Event ID 4688?**
+Event ID 4688 (Process Creation) is the key to tracking attacker activity because:
+- It captures the full command line when auditing is properly configured
+- It records parent-child process relationships (crucial for understanding execution chains)
+- It timestamps every command execution
+- It identifies which user account executed each command
+
+I filtered chronologically from the earliest events because attackers typically start with reconnaissance commands like `systeminfo`, `whoami`, or `net user` to understand the environment before moving laterally.
 
 **Flag:** `systeminfo`
 
@@ -156,6 +183,15 @@ To find the attacker's IP address, I filtered events with ID 4624 (successful lo
 </Event>
 ```
 
+**Why Event ID 4624?**
+Event ID 4624 (Successful Logon) is critical for identifying remote attackers because:
+- **Logon Type 3**: Network logons indicate remote connections (RDP would be Type 10, interactive would be Type 2)
+- **NTLM Authentication**: Shows pass-the-hash or credential reuse attacks
+- **Source IP Address**: Only reliable way to identify the attacker's machine in Windows logs
+- **Correlation**: Matching the logon time with command execution timestamps confirms the attack source
+
+The combination of Logon Type 3 + NTLM + temporal proximity to WMI activity creates a clear attack signature.
+
 **Flag:** `10.129.242.110`
 
 ---
@@ -187,6 +223,15 @@ I searched for `schtasks` (scheduled task creation) in Security.evtx, starting f
   </EventData>
 </Event>
 ```
+
+**Why Search for "schtasks"?**
+Scheduled tasks are a common persistence mechanism because:
+- They survive reboots
+- They can run with SYSTEM privileges
+- They're harder to spot than obvious startup entries
+- They're a native Windows feature (LOLBAS technique)
+
+Searching for "schtasks" in Security.evtx was efficient because the command-line logging captured the full task creation command, including the malicious script path.
 
 **Flag:** `SysHelper Update`
 
@@ -268,6 +313,14 @@ I searched for the attacker's IP address in Security logs and found an event sho
 </Event>
 ```
 
+**Investigative Approach:**
+I searched for the attacker's IP address (`10.129.242.110`) across all Security events to find any activity originating from that source. This revealed the hosts file modification, which is a classic technique for:
+- Redirecting traffic to attacker-controlled servers
+- Bypassing DNS-based security controls
+- Setting up command-and-control infrastructure
+
+The hosts file modification pointed to the exfiltration domain, connecting the dots between credential theft (Q9) and data transmission.
+
 **Flag:** `NapoleonsBlackPearl.htb`
 
 ---
@@ -332,6 +385,12 @@ Therefore:
 - Local time: `2025-08-24T16:05:09` (subtract 7 hours)
 - Password format: `Watson_20250824160509`
 
+**Common Pitfall:**
+Initially, I tried using the UTC timestamp directly, which gave `Watson_20250824230509`. This was wrong because PowerShell's `Get-Date` uses the system's local time, not UTC. The registry timezone information was essential to get the correct answer.
+
+**Why Registry Explorer?**
+Windows Event Viewer shows times in your current system's timezone, not the original system's timezone. To accurately determine what timestamp the script generated, I needed to examine the actual registry hives from the compromised system.
+
 **Flag:** `Watson_20250824160509`
 
 ---
@@ -391,6 +450,14 @@ I researched "netsh portproxy registry location" online and found this Splunk re
 I then confirmed the path by examining the SYSTEM hive with Registry Explorer:
 
 ![Registry path confirmation in Registry Explorer](screenshots/q12_registry.png)
+
+**Why Registry Analysis Matters:**
+Network port proxies configured via `netsh` persist across reboots because they're stored in the registry. Understanding these persistence locations is crucial because:
+- It's where evidence remains even after the attacker disconnects
+- Incident responders need to check these keys during cleanup
+- Some security tools don't monitor registry-based network configurations
+
+This registry path is less commonly known than standard persistence locations (Run keys, Services), making it effective for attackers and important for defenders to understand.
 
 **Flag:** `HKLM\SYSTEM\CurrentControlSet\Services\PortProxy\v4tov4\tcp`
 
