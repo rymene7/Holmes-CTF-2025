@@ -449,3 +449,22 @@ Key takeaways:
 - PowerShell history files can reveal administrator actions
 
 ---
+
+## Answer Summary
+
+| Question | Answer |
+|----------|--------|
+| F01 | `systeminfo` |
+| F02 | `C:\Windows\System32\wbem\WmiPrvSE.exe` |
+| F03 | `wmiexec.py` |
+| F04 | `10.129.242.110` |
+| F05 | `SysHelper Update` |
+| F06 | `C:\Users\Werni\AppData\Local\JM.ps1` |
+| F07 | `svc_netupd` |
+| F08 | `NapoleonsBlackPearl.htb` |
+| F09 | `Watson_20250824160509` |
+| F10 | `192.168.1.101` |
+| F11 | `9999` |
+| F12 | `HKLM\SYSTEM\CurrentControlSet\Services\PortProxy\v4tov4\tcp` |
+| F13 | `T1090.001` |
+| F14 | `reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f` |
