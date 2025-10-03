@@ -212,3 +212,20 @@ This was definitely the easiest challenge of the five in Holmes CTF 2025 - a per
 The progression from log analysis to CTI platforms to malware sandbox to infrastructure scanning gave a nice overview of a typical threat investigation workflow.
 
 ---
+
+## Answer Summary
+
+| Question | Answer |
+|----------|--------|
+| Q1 | `Lilnunc/4A4D - SpecterEye` |
+| Q2 | `temp_4A4D.php` |
+| Q3 | `database_dump_4A4D.sql` |
+| Q4 | `4A4D` |
+| Q5 | `5` |
+| Q6 | `9` |
+| Q7 | `7477c4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d17477` |
+| Q8 | `74.77.74.77` |
+| Q9 | `/opt/lilnunc/implant/4a4d_persistence.sh` |
+| Q10 | `11` |
+| Q11 | `SenseShield MSP` |
+| Q12 | `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE` |
