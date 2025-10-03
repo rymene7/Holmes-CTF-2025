@@ -516,15 +516,15 @@ This challenge was rated "Hard," but with proper methodology and tools, it was m
 
 | Question | Answer |
 |----------|--------|
-| F01 | `ole32.dll` |
-| F02 | `dabcd999-1234-4567-89ab-1234567890ff` |
-| F03 | `COM Interop` |
-| F04 | `FF 50 68` |
-| F05 | `7, 42h` |
-| F06 | `FF 50 58` |
-| F07 | `getaddrinfo` |
-| F08 | `NetShareEnum` |
-| F09 | `FF 50 60` |
-| F10 | `HTB{Eternal_Companions_Reunited_Again}` |
+| Q1 | `ole32.dll` |
+| Q2 | `dabcd999-1234-4567-89ab-1234567890ff` |
+| Q3 | `COM Interop` |
+| Q4 | `FF 50 68` |
+| Q5 | `7, 42h` |
+| Q6 | `FF 50 58` |
+| Q7 | `getaddrinfo` |
+| Q8 | `NetShareEnum` |
+| Q9 | `FF 50 60` |
+| Q10 | `HTB{Eternal_Companions_Reunited_Again}` |
 
 ---
