@@ -137,14 +137,6 @@ All of these functions are imported from the same DLL.
 
 In the decompiled C code (right panel in Ghidra), I found the `CoCreateInstance` call with the CLSID parameter. The GUID was clearly visible in the function call.
 
-```c
-CoCreateInstance(&GUID_dabcd999_1234_4567_89ab_1234567890ff, 
-                 NULL, 
-                 CLSCTX_ALL, 
-                 &IID_IUnknown, 
-                 &ppv);
-```
-
 ![GUID in decompiled code](screenshots/q2_guid.png)
 
 **Flag:** `dabcd999-1234-4567-89ab-1234567890ff`
