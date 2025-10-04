@@ -761,7 +761,7 @@ This challenge lived up to its "Hard" rating. The combination of:
 - Creative use of string extraction and filtering
 - Multiple forensic disciplines (memory, network, credential analysis)
 
-Made it the most complex challenges in Holmes CTF 2025.
+Made it the most complex challenge in Holmes CTF 2025.
 
 **Key Takeaway:**
 
